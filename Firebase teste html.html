@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Firebase SDK versão 9+ com módulos -->
+    <script type="module">
+        // Importando os módulos do Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDL0sx2mSP3A8A2xoxEepwJzO4Y_8ol2bw",
+            authDomain: "filmesteste-30cee.firebaseapp.com",
+            databaseURL: "https://filmesteste-30cee-default-rtdb.firebaseio.com",
+            projectId: "filmesteste-30cee",
+            storageBucket: "filmesteste-30cee.appspot.com",
+            messagingSenderId: "642695097536",
+            appId: "1:642695097536:android:c8fada52dbc01824219125"
+        };
+
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Referência para o formulário de login
+        const loginForm = document.getElementById('loginForm');
+        const statusElement = document.getElementById('status');
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Previne o envio normal do formulário
+
+            const login = document.getElementById('login').value;
+            const senha = document.getElementById('senha').value;
+
+            // Referência para a coleção de logins
+            const loginsRef = ref(database, 'logins');
+
+            // Buscando os dados do Firebase
+            get(loginsRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    let loginEncontrado = false;
+
+                    snapshot.forEach(function(childSnapshot) {
+                        const user = childSnapshot.val();
+
+                        // Comparando o login e a senha
+                        if (user.login === login && user.senha === senha) {
+                            loginEncontrado = true;
+                        }
+                    });
+
+                    if (loginEncontrado) {
+                        statusElement.textContent = 'Login realizado com sucesso!';
+                        statusElement.style.color = 'green';
+                    } else {
+                        statusElement.textContent = 'Login ou senha incorretos.';
+                        statusElement.style.color = 'red';
+                    }
+                } else {
+                    statusElement.textContent = 'Erro ao acessar os dados.';
+                    statusElement.style.color = 'red';
+                }
+            }).catch((error) => {
+                statusElement.textContent = 'Erro ao acessar o banco de dados: ' + error.message;
+                statusElement.style.color = 'red';
+            });
+        });
+    </script>
+
+    <style>
+        /* Resetando o estilo padrão */
+        body, h2, p, form {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Container principal */
+        .login-container {
+            background: #fff;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Título */
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        /* Estilo do formulário */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            text-align: left;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #4caf50;
+        }
+
+        /* Botão de login */
+        button {
+            background-color: #4caf50;
+            color: white;
+            font-size: 16px;
+            padding: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Status de mensagem */
+        #status {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="login">Login:</label>
+            <input type="text" id="login" name="login" required placeholder="Digite seu login">
+            
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required placeholder="Digite sua senha">
+            
+            <button type="submit">Entrar</button>
+        </form>
+        <p id="status"></p>
+    </div>
+</body>
+</html>
